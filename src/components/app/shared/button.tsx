@@ -17,7 +17,7 @@ const Button = styled.button<ButtonProps>`
   @media (hover: hover) {
     &:hover {
       background: ${({ active, theme }) =>
-        active ? theme.colors.button.secondary : theme.colors.highlightDark};
+        active ? theme.colors.button.secondary : theme.colors.highlight};
       cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
     }
   }

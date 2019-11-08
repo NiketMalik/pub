@@ -3,6 +3,7 @@ import { Project } from './types/project';
 import { ProjectUser } from './types/project-user';
 import { SessionStorageHelper } from '@/helpers';
 import { Username } from './types/username';
+import { UserInfo } from './types/user-info';
 
 export class ApiService {
   private headers = {
@@ -56,6 +57,14 @@ export class ApiService {
       `${this.apiEndpoint}/util`,
       this.headers,
       username,
+    );
+  }
+
+  public async setUserInfo(userInfo: UserInfo) {
+    return await HttpClient.post(
+      `${this.apiEndpoint}/userinfo`,
+      this.headers,
+      userInfo,
     );
   }
 
