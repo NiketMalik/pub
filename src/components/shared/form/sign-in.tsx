@@ -16,6 +16,7 @@ import ServiceResolver from '@/api/service-resolver';
 import { ApiResponse, ErrorResponse } from '@/api/types/responses';
 import { SessionStorageHelper } from '@/helpers';
 import { JwtToken } from '@/api/types/jwt-token';
+import { SignIn } from '@/api/types/sign-in';
 
 const Wrapper = styled.section`
   background-color: ${({ theme }) => theme.colors.section};
@@ -67,27 +68,29 @@ export const SignInForm: React.FC<SignInFormProps> = ({ location }) => {
       return;
     }
 
-    if (!isSigningIn) {
-      setIsSigningIn(true);
+    const creds: SignIn = {
+      email,
+      password,
+    };
 
-      try {
-        const response = (await auth.signIn({
-          email,
-          password,
-        })) as ApiResponse<JwtToken | ErrorResponse>;
-
-        if (response.ok) {
-          SessionStorageHelper.storeJwt(response.data as JwtToken);
+    auth
+      .signIn(creds)
+      .then((resp) => {
+        if (resp.ok) {
+          SessionStorageHelper.storeJwt(resp.data as JwtToken);
           navigate('/app/projects/');
         } else {
-          setMessage((response.data as ErrorResponse).message);
+          setMessage((resp.data as ErrorResponse).message);
         }
-      } catch (err) {
-        setMessage('Invalid email or password');
-      }
+      })
+      .catch((resp) => setMessage((resp.data as ErrorResponse).message));
 
-      setIsSigningIn(false);
-    }
+    // if (response.ok) {
+    //   SessionStorageHelper.storeJwt(response.data as JwtToken);
+    //   navigate('/app/projects/');
+    // } else {
+    //   setMessage((response.data as ErrorResponse).message);
+    // }
   };
 
   return (

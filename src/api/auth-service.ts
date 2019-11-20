@@ -1,6 +1,8 @@
 import { HttpClient } from './http-client';
 import { SignIn } from './types/sign-in';
 import { SignUp } from './types/sign-up';
+import { ApiResponse, ErrorResponse } from './types/responses';
+import { JwtToken } from './types/jwt-token';
 
 export class AuthService {
   private headers = {
@@ -13,7 +15,7 @@ export class AuthService {
     this.apiEndpoint = process.env.GATSBY_API_ENDPOINT || '';
   }
 
-  public async signIn(signIn: SignIn) {
+  public async signIn(signIn: SignIn): Promise<ApiResponse<JwtToken>> {
     return await HttpClient.post(
       `${this.apiEndpoint}/auth/login`,
       this.headers,

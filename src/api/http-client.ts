@@ -1,17 +1,18 @@
 export class HttpClient {
-  public static async makeRequest(request: Request): Promise<unknown> {
+  public static async makeRequest<T>(request: Request): Promise<T> {
     const response = await fetch(request);
 
-    if (!response.ok && response.type) {
-      throw new Error(response.statusText);
-    }
+    if (response.ok && response.type) return JSON.parse(await response.text());
 
-    const text = await response.text();
-
-    return text ? JSON.parse(text) : {};
+    return Promise.reject(
+      JSON.parse(`{
+        "ok": "false",
+        "data": { "message": "${response.statusText}" }
+      }`),
+    );
   }
 
-  public static async get(endpoint: string, headers = {}): Promise<unknown> {
+  public static async get<T>(endpoint: string, headers = {}): Promise<T> {
     const request = new Request(endpoint, {
       body: null,
       headers,
@@ -22,11 +23,11 @@ export class HttpClient {
     return await HttpClient.makeRequest(request);
   }
 
-  public static async post(
+  public static async post<T>(
     endpoint: string,
     headers = {},
     body: object = {},
-  ): Promise<unknown> {
+  ): Promise<T> {
     const request = new Request(endpoint, {
       body: JSON.stringify(body),
       headers,

@@ -4,6 +4,7 @@ import { getProjects } from './responses';
 import { projectUser } from './responses';
 import { getProjectTypes } from './responses/get-project-types';
 import { validateUser } from './responses/validate-user';
+import { ApiResponse, ErrorResponse } from '@/api/types/responses';
 
 export class MockApiService {
   public async createProject(project: Project) {
@@ -14,7 +15,7 @@ export class MockApiService {
     return getProjectTypes;
   }
 
-  public async getProjects() {
+  public async getProjects(): Promise<ApiResponse<Project[] | ErrorResponse>> {
     return getProjects;
   }
 

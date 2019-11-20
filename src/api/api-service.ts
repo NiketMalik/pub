@@ -3,6 +3,7 @@ import { Project } from './types/project';
 import { ProjectUser } from './types/project-user';
 import { SessionStorageHelper } from '@/helpers';
 import { Username } from './types/username';
+import { ApiResponse, ErrorResponse } from './types/responses';
 
 export class ApiService {
   private headers = {
@@ -32,7 +33,7 @@ export class ApiService {
     );
   }
 
-  public async getProjects() {
+  public async getProjects(): Promise<ApiResponse<Project[] | ErrorResponse>> {
     return await HttpClient.get(`${this.apiEndpoint}/projects`, this.headers);
   }
 

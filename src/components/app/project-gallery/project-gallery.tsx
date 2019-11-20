@@ -53,24 +53,51 @@ const ProjectGallery: React.FC = () => {
 
   React.useEffect(() => {
     const api = ServiceResolver.apiResolver();
+    api;
 
     async function fetchContent() {
-      try {
-        const response = (await api.getProjects()) as ApiResponse<
-          Project[] | ErrorResponse
-        >;
-        if (response.ok) {
-          const projects = response.data as Project[];
-          const projectsLookingForMembers = projects.filter(
-            (project) => project.lookingForMembers == true,
-          );
-          setProjects(projectsLookingForMembers);
-        } else setMessage((response.data as ErrorResponse).message);
-      } catch (err) {
-        setMessage('Failed to retrieve a list of projects');
-      }
+      setIsLoading(true);
+      // const response = await api.getProjects();
 
-      setIsLoading(false);
+      // if (response.ok) {
+      //   const projects = response.data as Project[];
+      //   const projectsLookingForMembers = projects.filter(
+      //     (p) => p.lookingForMembers,
+      //   );
+      //   setProjects(projectsLookingForMembers);
+      // } else {
+      //   setMessage((response.data as ErrorResponse).message);
+      // }
+
+      api
+        .getProjects()
+        .then((resp) => {
+          if (resp.ok) {
+            const projects = resp.data as Project[];
+            const projectsLookingForMembers = projects.filter(
+              (p) => p.lookingForMembers,
+            );
+            setProjects(projectsLookingForMembers);
+          } else {
+            setMessage((resp.data as ErrorResponse).message);
+          }
+
+          setIsLoading(false);
+        })
+        .catch((resp) => {
+          setMessage((resp.data as ErrorResponse).message);
+          setIsLoading(false);
+        });
+
+      // console.log(123, response);
+
+      // if (response.ok) {
+      //   const projects = response.data as Project[];
+      //   const projectsLookingForMembers = projects.filter(
+      //     (p) => p.lookingForMembers,
+      //   );
+      //   setProjects(projectsLookingForMembers);
+      // } else setMessage((response.data as ErrorResponse).message);
     }
 
     fetchContent();
