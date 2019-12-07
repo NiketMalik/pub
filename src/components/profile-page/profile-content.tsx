@@ -7,8 +7,8 @@ interface Props {
 }
 
 const Container = styled.div`
-  max-wdth: 900px;
-  border: 1px solid lightgray;
+  max-width: 900px;
+  /* border: 1px solid lightgray; */
   border-left: none;
   flex: 1;
   border-top-right-radius: 5px;

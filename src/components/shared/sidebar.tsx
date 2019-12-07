@@ -10,7 +10,7 @@ interface Props {
 const Container = styled.div`
   color: blue;
   height: 500px;
-  border: 1px solid lightgray;
+  /* border: 1px solid lightgray; */
   max-width: 200px;
   flex: 1;
   border-top-left-radius: 5px;
