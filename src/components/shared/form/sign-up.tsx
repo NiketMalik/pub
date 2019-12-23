@@ -15,9 +15,11 @@ import { UserValidation } from '@/api/types/user-validation';
 import { JwtToken } from '@/api/types/jwt-token';
 import { SessionStorageHelper } from '@/helpers';
 import { ApiButton } from '../buttons/api-button';
-import { ErrorMessage } from '..';
+import { ErrorMessage, Ribbon, CloseButton } from '..';
 import 'validator';
 import validator from 'validator';
+import { Username } from '@/api/types/username';
+import { UsernameCheck } from '../messages';
 
 const Wrapper = styled.section`
   background-color: ${({ theme }) => theme.colors.section};
@@ -31,19 +33,6 @@ const Wrapper = styled.section`
   @media screen and(max-width: ${({ theme }) => theme.sizes.width.small}) {
     padding: ${({ theme }) => theme.boxes.padding.section.small};
   }
-`;
-
-const Error = styled.ul`
-  color: ${({ theme }) => theme.colors.alert.danger};
-  margin: 0;
-
-  li {
-    margin: 0;
-  }
-`;
-
-const UsernameCheck = styled.small<{ isValid: boolean }>`
-  color: ${(props) => (props.isValid ? '' : 'red')};
 `;
 
 interface InputValue {
@@ -61,11 +50,37 @@ export const SignUpForm: React.FC = () => {
   const [password, setPassword] = React.useState<string>('');
   const [confirmPassword, setConfirmPassword] = React.useState<string>('');
 
-  const [message, setMessage] = useState<string | UserValidation>();
+  const [message, setMessage] = useState<string | UserValidation | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [usernameAvailablity, setUsernameAvailability] = useState<
     UserValidation
   >({ valid: false, reason: '' });
+
+  const checkUsername = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const api = ServiceResolver.apiResolver();
+    const { value } = e.target;
+
+    if (value) {
+      setIsLoading(true);
+
+      const username: Username = {
+        username: value,
+      };
+
+      try {
+        const response = (await api.validateUsername(username)) as ApiResponse<
+          UserValidation | ErrorResponse
+        >;
+        if (!response.ok) setMessage(response.data as UserValidation);
+        setIsLoading(false);
+        setUsernameAvailability(response.data as UserValidation);
+      } catch (error) {
+        setMessage('Failed to validate username');
+      }
+    } else {
+      setUsernameAvailability({ valid: false, reason: '' });
+    }
+  };
 
   // TODO: change `any`
   const validationRules: any = {
@@ -75,12 +90,15 @@ export const SignUpForm: React.FC = () => {
     ],
     username: [
       { rule: () => !validator.isEmpty(username), errorMessage: 'Required' },
-      // { rule: () => checkUsername(username), errorMessage: 'Username not available' }
+      // {
+      //   rule: () => checkUsername(username),
+      //   errorMessage: 'Username not available',
+      // },
     ],
     password: [
       { rule: () => !validator.isEmpty(password), errorMessage: 'Required' },
       // {
-      //   rule: () => validator.matches(password, /[a-zA-Z0-9_-\.]{6,}/i),
+      //   rule: () => validator.matches(password, /[a-zA-Z0-9_-\.]{6,}/),
       //   errorMessage:
       //     'Password must be 6 characters or more, containing only alphanumeric characters, _, -, and .',
       // },
@@ -97,134 +115,105 @@ export const SignUpForm: React.FC = () => {
     ],
   };
 
-  const formErrors: any = React.useState<object>({});
+  const [formErrors, setFormErrors]: any = React.useState<object>({});
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-
+  const validateField = (name: string) => {
     const rules = validationRules[name];
+    const errors = { ...formErrors };
 
     for (const rule of rules) {
       const isValid = rule.rule();
 
-      if (!isValid) formErrors[name] = rule.errorMessage;
-      else delete formErrors[name];
+      if (!isValid) {
+        errors[name] = rule.errorMessage;
+        setFormErrors({ ...errors });
+        return;
+      } else {
+        delete errors[name];
+        setFormErrors({ ...errors });
+      }
     }
   };
 
+  const isFormValid = (): boolean => {
+    validateField('email');
+    validateField('username');
+    validateField('password');
+    validateField('confirmPassword');
+
+    return Object.keys(formErrors).length > 0;
+  };
+
   const handleClick = async () => {
-    //   const auth = ServiceResolver.authResolver();
-    //   const errors = validation.userSignUp(formInputs);
-    //   if (errors.length) return setFormErrors([...errors]);
-    //   setFormErrors([]);
-    //   try {
-    //     const locale =
-    //       typeof window.navigator !== 'undefined'
-    //         ? window.navigator.language
-    //         : 'en-US';
-    //     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    //     const response = (await auth.signUp({
-    //       username,
-    //       email,
-    //       password,
-    //       confirmPassword,
-    //       locale,
-    //       timezone,
-    //     })) as ApiResponse<JwtToken | ErrorResponse>;
-    //     if (response.ok) {
-    //       SessionStorageHelper.storeJwt(response.data as JwtToken);
-    //       navigate('/app/projects/');
-    //     } else {
-    //       setMessage((response.data as ErrorResponse).message);
-    //     }
-    //   } catch (err) {
-    //     setMessage('Failed to sign up. Please try again');
-    //   }
-  };
+    const auth = ServiceResolver.authResolver();
 
-  const displayErrorMessages = () => {
-    // return formErrors.map((err: string) => {
-    //   if (err === 'email') return <li key={err}>Invalid email</li>;
-    //   if (err === 'username') return <li key={err}>Invalid username</li>;
-    //   if (err === 'password')
-    //     return (
-    //       <li key={err}>
-    //         Password must contain:
-    //         <ul>
-    //           <li>six characters or more</li>
-    //           <li>
-    //             has at least one lowercase and one uppercase alphabetical
-    //             character
-    //           </li>
-    //           <li>or has at least one lowercase and one numeric character</li>
-    //           <li>or has at least one uppercase and one numeric character</li>
-    //         </ul>
-    //       </li>
-    //     );
-    //   if (err === 'confirmPassword')
-    //     return <li key={err}>Passwords do not match</li>;
-    // });
-    return '';
-  };
+    if (!isFormValid()) return;
 
-  const checkUsername = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    //   const api = ServiceResolver.apiResolver();
-    //   const { name, value } = e.target;
-    //   const state = formInputs;
-    //   state[name].val = value;
-    //   if (value) {
-    //     setIsLoading(true);
-    //     const username: Username = {
-    //       username: value,
-    //     };
-    //     try {
-    //       const response = (await api.validateUsername(username)) as ApiResponse<
-    //         UserValidation | ErrorResponse
-    //       >;
-    //       if (!response.ok) setMessage(response.data as UserValidation);
-    //       setIsLoading(false);
-    //       setUsernameAvailability(response.data as UserValidation);
-    //       setFormInputs({ ...state });
-    //     } catch (error) {
-    //       setMessage('Failed to validate username');
-    //     }
-    //   } else {
-    //     setUsernameAvailability({ valid: false, reason: '' });
-    //   }
+    try {
+      const locale =
+        typeof window.navigator !== 'undefined'
+          ? window.navigator.language
+          : 'en-US';
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const response = (await auth.signUp({
+        username,
+        email,
+        password,
+        confirmPassword,
+        locale,
+        timezone,
+      })) as ApiResponse<JwtToken | ErrorResponse>;
+      if (response.ok) {
+        SessionStorageHelper.storeJwt(response.data as JwtToken);
+        navigate('/app/projects/');
+      } else {
+        setMessage((response.data as ErrorResponse).message);
+      }
+    } catch (err) {
+      setMessage('Failed to sign up. Please try again');
+    }
   };
 
   return (
     <Wrapper>
       <Form heading={`Sign Up`}>
-        {/* {formErrors && <Error>{displayErrorMessages()}</Error>} */}
-        x: {formErrors.hasOwnProperty('email') ? 'true' : 'false'}
-        {message && <Error>{message}</Error>}
+        {message !== null && (
+          <Ribbon type="danger">
+            {message}
+            <CloseButton onClick={() => setMessage(null)}>&#10006;</CloseButton>
+          </Ribbon>
+        )}
         <FormLabel htmlFor="email">Email</FormLabel>
         <FormInput
           name="email"
           type="email"
           placeholder="unicorn@projectunicorn.net"
-          onChange={(e) => setEmail(e.target.value)}
-          onBlur={(e) => handleBlur(e)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
+          onBlur={() => validateField('email')}
           hasError={formErrors.hasOwnProperty('email')}
         />
         {formErrors.hasOwnProperty('email') && (
-          <ErrorMessage value="Email Required" />
+          <ErrorMessage value={formErrors['email']} />
         )}
         <FormLabel htmlFor="username">Username</FormLabel>
         <FormInput
           name="username"
           type="text"
           placeholder="unicorn21"
-          onChange={(e) => setUsername(e.target.value)}
-          onBlur={(e) => handleBlur(e)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            checkUsername(e);
+          }}
+          onBlur={() => validateField('username')}
           hasError={formErrors.hasOwnProperty('username')}
         />
         <UsernameCheck isValid={usernameAvailablity.valid}>
-          {isLoading ? 'checking...' : usernameAvailablity.reason}
+          {isLoading ? 'Checking availability...' : usernameAvailablity.reason}
         </UsernameCheck>
         {formErrors.hasOwnProperty('username') && (
-          <ErrorMessage value="Username Required" />
+          <ErrorMessage value={formErrors['username']} />
         )}
         <FormLabel htmlFor="password">Password</FormLabel>
         <FormInput
@@ -232,14 +221,11 @@ export const SignUpForm: React.FC = () => {
           type="password"
           placeholder="Your Password"
           onChange={(e) => setPassword(e.target.value)}
-          onBlur={(e) => handleBlur(e)}
-          hasError={
-            formErrors.hasOwnProperty('password') ||
-            formErrors.hasOwnProperty('confirmPassword')
-          }
+          onBlur={() => validateField('password')}
+          hasError={formErrors.hasOwnProperty('password')}
         />
         {formErrors.hasOwnProperty('password') && (
-          <ErrorMessage value="Password Required" />
+          <ErrorMessage value={formErrors['password']} />
         )}
         <FormLabel htmlFor="password">Confirm Password</FormLabel>
         <FormInput
@@ -247,14 +233,11 @@ export const SignUpForm: React.FC = () => {
           type="password"
           placeholder="Confirm Your Password"
           onChange={(e) => setConfirmPassword(e.target.value)}
-          onBlur={(e) => handleBlur(e)}
-          hasError={
-            formErrors.hasOwnProperty('password') ||
-            formErrors.hasOwnProperty('confirmPassword')
-          }
+          onBlur={() => validateField('confirmPassword')}
+          hasError={formErrors.hasOwnProperty('confirmPassword')}
         />
         {formErrors.hasOwnProperty('confirmPassword') && (
-          <ErrorMessage value="Confirm Password Required" />
+          <ErrorMessage value={formErrors['confirmPassword']} />
         )}
         <LinkWrapper>
           <Link to="/signin">Already a member? Sign In</Link>

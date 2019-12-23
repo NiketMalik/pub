@@ -52,6 +52,7 @@ export default class ServiceResolver {
   }
 
   private static useMock() {
+    return false;
     return (
       !process.env.NODE_ENV ||
       process.env.NODE_ENV === 'development' ||

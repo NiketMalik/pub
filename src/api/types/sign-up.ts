@@ -2,7 +2,7 @@ export interface SignUp {
   username: string;
   email: string;
   password: string;
-  passwordConfirmation: string;
+  confirmPassword: string;
   locale: string;
   timezone: string;
 }

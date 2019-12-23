@@ -5,20 +5,24 @@ interface MessageProps {
   value: string;
 }
 
-const ErrorMsg = styled.span`
+export const ErrorMessageHtml = styled.span`
   color: red;
   font-size: 14px;
 `;
 
-const SuccessMsg = styled.span`
+export const SuccessMessageHtml = styled.span`
   color: green;
   font-size: 14px;
 `;
 
 export const ErrorMessage: React.FC<MessageProps> = ({ value }) => {
-  return <ErrorMsg>{value}</ErrorMsg>;
+  return <ErrorMessageHtml>{value}</ErrorMessageHtml>;
 };
 
 export const SuccessMessage: React.FC<MessageProps> = ({ value }) => {
-  return <SuccessMsg>{value}</SuccessMsg>;
+  return <SuccessMessageHtml>{value}</SuccessMessageHtml>;
 };
+
+export const UsernameCheck = styled.small<{ isValid: boolean }>`
+  color: ${(props) => !props.isValid && 'red'};
+`;
