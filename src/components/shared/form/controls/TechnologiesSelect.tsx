@@ -1,10 +1,9 @@
 import React from 'react';
 import AsyncSelect from 'react-select/async';
 import { ValueType } from 'react-select/src/types';
-import { ProjectTechnology } from '@/api/types/project-technology';
+
+import { ServiceResolver, Tag, Item, ProjectTechnology } from '@api';
 import { theme } from '@styles';
-import ServiceResolver from '@/api/service-resolver';
-import { Tag, Item } from '@/api/types/stack-exchange';
 
 interface FormValue<T = string> {
   val: T;

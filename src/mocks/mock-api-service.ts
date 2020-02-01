@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Project } from '@/api/types/project';
-
 import {
   getProjects,
   projectUser,
@@ -10,7 +8,7 @@ import {
   createProject,
   user,
 } from './responses';
-import { User } from '@/api/types/user';
+import { Project, User } from '@api';
 
 export class MockApiService {
   public async createProject(project: Project) {

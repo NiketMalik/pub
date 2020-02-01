@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import styled from 'styled-components';
 
 export const BaseContainerHtml = styled.div`
@@ -11,10 +11,7 @@ interface BaseContainerProps {
   border?: boolean;
 }
 
-export const BaseContainer: React.FC<BaseContainerProps> = ({
-  border,
-  children,
-}) => {
+export const BaseContainer: FC<BaseContainerProps> = ({ border, children }) => {
   return (
     <BaseContainerHtml style={{ border: `${border && '1px solid lightgray'}` }}>
       {children}

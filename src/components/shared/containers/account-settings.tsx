@@ -1,8 +1,7 @@
 import React from 'react';
-import { MenuItem } from '../side-panels/container-side-panel';
+
 import { MainContent } from './main-content';
-import DefaultImage from '@images/default.png';
-import { ContainerSidePanel, Image } from '../side-panels';
+import { SettingsContainer } from './settings-container';
 import {
   Form,
   FormLabel,
@@ -11,12 +10,13 @@ import {
   ButtonWrapper,
   TechnologiesSelect,
 } from '../form';
+import { MenuItem } from '../side-panels/container-side-panel';
+import { ContainerSidePanel, Image } from '../side-panels';
 import { ApiButton } from '../buttons';
-import ServiceResolver from '@/api/service-resolver';
-import { UserAuthHelper } from '@/helpers';
-import { ApiResponse, ErrorResponse } from '@/api/types/responses';
-import { User } from '@/api/types/user';
-import { SettingsContainer } from './settings-container';
+import { ServiceResolver, ApiResponse, ErrorResponse, User } from '@api';
+import { defaultProfileImage } from '@images';
+import { UserAuthHelper } from '@helpers';
+import { noop } from '@utils';
 
 interface OptionType {
   label: string;
@@ -98,7 +98,7 @@ export const AccountSettings: React.FC = () => {
       <MainContent>
         <Form>
           <Image
-            src={(user && user.profilePictureUrl) || DefaultImage}
+            src={(user && user.profilePictureUrl) || defaultProfileImage}
             width="64"
             height="64"
           />
@@ -120,7 +120,7 @@ export const AccountSettings: React.FC = () => {
               setBio(e.target.value)
             }
             value={bio}
-            onBlur={() => {}}
+            onBlur={noop}
             rows={3}
           >
             {bio}

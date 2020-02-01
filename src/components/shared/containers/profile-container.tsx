@@ -1,30 +1,30 @@
-import React from 'react';
 import { Link } from 'gatsby';
+import React, { FC, Fragment, useEffect, useState } from 'react';
+
 import { BaseContainer } from './base-container';
-import DefaultImage from '@images/default.png';
-import { ContainerSidePanel, Summary, Image } from '../side-panels';
 import { MainContent } from './main-content';
-import { FormLabel } from '../form';
-import { User } from '@/api/types/user';
-import ServiceResolver from '@/api/service-resolver';
-import { ApiResponse, ErrorResponse } from '@/api/types/responses';
-import { Loader } from '@components/shared';
-import { Ribbon, CloseButton, ProfileTechPill } from '..';
 import { Wrapper } from '../page';
-import { UserAuthHelper } from '@/helpers';
+import { FormLabel } from '../form';
+import { ContainerSidePanel, Summary, Image } from '../side-panels';
+import { ProfileTechPill } from '../pills';
+import { Ribbon, CloseButton } from '../ribbons';
+import { ApiResponse, ErrorResponse, ServiceResolver, User } from '@api';
+import { Loader } from '@components/shared';
+import { UserAuthHelper } from '@helpers';
 import { Button } from '../buttons';
+import { defaultProfileImage } from '@images';
 
 interface ProfileContainerProps {
   id?: string;
   path: string;
 }
 
-export const ProfileContainer: React.FC<ProfileContainerProps> = ({ id }) => {
-  const [user, setUser] = React.useState<User>();
-  const [error, setError] = React.useState<string | null>(null);
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+export const ProfileContainer: FC<ProfileContainerProps> = ({ id }) => {
+  const [user, setUser] = useState<User>();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const api = ServiceResolver.apiResolver();
 
     const fetchContent = async () => {
@@ -62,20 +62,22 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({ id }) => {
       {!isLoading && user && (
         <BaseContainer>
           <ContainerSidePanel style={{ padding: '20px ' }}>
-            <React.Fragment>
+            <Fragment>
               <Summary>
-                <Image src={(user && user.profilePictureUrl) || DefaultImage} />
+                <Image
+                  src={(user && user.profilePictureUrl) || defaultProfileImage}
+                />
                 <Summary>{user && user.username}</Summary>
               </Summary>
               {UserAuthHelper.isUserAuthenticated() && (
-                <React.Fragment>
+                <Fragment>
                   <br />
                   <Link to="/settings">
                     <Button>Edit Profile</Button>
                   </Link>
-                </React.Fragment>
+                </Fragment>
               )}
-            </React.Fragment>
+            </Fragment>
           </ContainerSidePanel>
           <MainContent>
             <FormLabel>Bio</FormLabel>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Form } from '@components/shared/form';
-import { ErrorMessage } from '@components/shared/messages';
+import { navigate } from 'gatsby';
+import React, { useState, useEffect, FormEvent } from 'react';
+import styled from 'styled-components';
+
 import {
   FormLabel,
   FormInput,
@@ -10,17 +11,19 @@ import {
   ButtonWrapper,
   TechnologiesSelect,
 } from './controls';
-import styled from 'styled-components';
-import ServiceResolver from '@/api/service-resolver';
-import { Project } from '@/api/types/project';
-import { ProjectType } from '@/api/types/project-types';
-import { FormVal, Props } from '@utils/form-validation';
-import { navigate } from 'gatsby';
-import { UserAuthHelper } from '@/helpers';
-import { ApiResponse, ErrorResponse } from '@/api/types/responses';
-import { ProjectTechnology } from '@/api/types/project-technology';
 import { ApiButton } from '../buttons';
-import { Ribbon, CloseButton } from '..';
+import {
+  ServiceResolver,
+  Project,
+  ProjectType,
+  ApiResponse,
+  ErrorResponse,
+  ProjectTechnology,
+} from '@api';
+import { Form } from '@components/shared/form';
+import { Message, Ribbon, CloseButton } from '@components/shared';
+import { FormVal, Props } from '@utils';
+import { UserAuthHelper } from '@helpers';
 
 const FormWrapper = styled.div`
   width: 400px;
@@ -114,7 +117,7 @@ export const CreateProjectForm: React.FC = () => {
     setFormInputs({ ...state });
   };
 
-  const handleSelectChange = (e: any) => {
+  const handleSelectChange = (e: FormEvent<HTMLSelectElement>) => {
     const technologies: ProjectTechnology[] = Array.isArray(e)
       ? e.map((v) => ({ name: v, projectId: '' }))
       : [];
@@ -207,7 +210,7 @@ export const CreateProjectForm: React.FC = () => {
             hasError={formErrors.includes('pName')}
           />
           {formErrors.includes('pName') && (
-            <ErrorMessage value="Project Name Required" />
+            <Message variant="error" value="Project Name Required" />
           )}
           <FormHint>
             Make your project name simple, specific and memorable
@@ -223,7 +226,7 @@ export const CreateProjectForm: React.FC = () => {
             hasError={formErrors.includes('pDesc')}
           />
           {formErrors.includes('pDesc') && (
-            <ErrorMessage value="Project Description Required" />
+            <Message variant="error" value="Project Description Required" />
           )}
           <FormHint>Describe your project in a single tweet</FormHint>​
           <FormLabel htmlFor="project-type">Project Type</FormLabel>
@@ -236,7 +239,7 @@ export const CreateProjectForm: React.FC = () => {
             placeholder="Select a Project Type"
           />
           {formErrors.includes('pType') && (
-            <ErrorMessage value="Project Type Required" />
+            <Message variant="error" value="Project Type Required" />
           )}
           <FormHint>What category does your project belong to?</FormHint>​
           <FormLabel htmlFor="project-repo">Project Repo</FormLabel>
@@ -248,7 +251,7 @@ export const CreateProjectForm: React.FC = () => {
             hasError={formErrors.includes('pRepo')}
           />
           {formErrors.includes('pRepo') && (
-            <ErrorMessage value="Project Repo Required" />
+            <Message variant="error" value="Project Repo Required" />
           )}
           <FormHint>Share your project repo (GitHub, GitLab etc)</FormHint>​
           <FormLabel htmlFor="launch-date">Launch Date</FormLabel>
@@ -260,7 +263,7 @@ export const CreateProjectForm: React.FC = () => {
             hasError={formErrors.includes('pLaunch')}
           />
           {formErrors.includes('pLaunch') && (
-            <ErrorMessage value="Launch Date Required" />
+            <Message variant="error" value="Launch Date Required" />
           )}
           <FormHint>
             Keep you and your team accountable with a launch date
@@ -277,7 +280,10 @@ export const CreateProjectForm: React.FC = () => {
             hasError={formErrors.includes('pComm')}
           />
           {formErrors.includes('pComm') && (
-            <ErrorMessage value="Communication Platform link must be Slack or Discord" />
+            <Message
+              variant="error"
+              value="Communication Platform link must be Slack or Discord"
+            />
           )}
           <FormHint>
             Where will you communicate? Share the invite link to your workspace
@@ -289,7 +295,7 @@ export const CreateProjectForm: React.FC = () => {
             setTechnologies={handleSelectChange}
           />
           {formErrors.includes('pTech') && (
-            <ErrorMessage value="At least one technology required" />
+            <Message variant="error" value="At least one technology required" />
           )}
           <FormHint>Add the technologies used in your application</FormHint>
           <ButtonWrapper>
