@@ -8,10 +8,15 @@ export class SessionStorageHelper {
   }
 
   public static getJwt(): JwtToken {
-    const storedJwt = localStorage.getItem('currentJwt');
     const emptyjwt: JwtToken = {
       token: undefined,
     };
+
+    if (typeof window === 'undefined') {
+      return emptyjwt;
+    }
+
+    const storedJwt = localStorage.getItem('currentJwt');
 
     if (storedJwt === null) {
       return emptyjwt;
